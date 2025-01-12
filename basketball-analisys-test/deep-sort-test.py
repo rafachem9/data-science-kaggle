@@ -32,7 +32,7 @@ while cap.isOpened():
     confidences = confidences[class_ids == 0]
 
     # Realizar el rastreo con DeepSORT
-    tracks = deepsort.update(boxes)
+    tracks = deepsort.update_tracks(boxes)
 
     # Dibujar las cajas y las IDs de los jugadores
     for track in tracks:

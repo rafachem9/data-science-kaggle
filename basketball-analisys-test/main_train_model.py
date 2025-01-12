@@ -6,6 +6,6 @@ from utils import PROJECT_DIR
 model = YOLO('yolov8n.yaml')  # Modelo medium
 
 model.train(data=f'{PROJECT_DIR}\datasets\data.yaml',
-            epochs=200,
+            epochs=100,
             imgsz=640
             )
