@@ -166,3 +166,4 @@ yolov8*
 /basketball-analisys-test/runs/
 /basketball-analisys-test/datasets/
 /computer-vision/yolov8s.pt
+/basketball-analisys-test/check_model/runs/
