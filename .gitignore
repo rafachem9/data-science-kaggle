@@ -161,5 +161,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 /computer-vision/runs/
-/computer-vision/yolov8x.pt
+yolov8*
 /computer-vision/datasets/
+/basketball-analisys-test/runs/
+/basketball-analisys-test/datasets/
+/computer-vision/yolov8s.pt

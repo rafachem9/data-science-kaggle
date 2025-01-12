@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 
-model = YOLO('yolov8x')
+model = YOLO('yolov8s.pt')
 
 result = model.track('datasets/partido-example.png', save=True)
 print(result)

@@ -1,4 +1,0 @@
-opencv-contrib-python==-4.10.0
-caer==2.0.8
-matplotlib==3.10.0
-ultralytics==8.3.59
