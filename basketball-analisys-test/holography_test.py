@@ -1,6 +1,11 @@
+from ultralytics import YOLO
+from deep_sort_realtime.deepsort_tracker import DeepSort
 import cv2
 from utils import PROJECT_DIR
 import time
+from utils import PROJECT_DIR
+from utils_images.functions_util import get_rectangule_coords
+
 import numpy as np
 
 # Path to the video file
@@ -12,10 +17,6 @@ diagram_image = cv2.imread(diagram_image_path)
 
 # Open the video
 cap = cv2.VideoCapture(video_path)
-
-# Define rectangle coordinates (x1, y1, x2, y2)
-# Replace these values with the actual coordinates of your rectangle
-rectangle_coords = (100, 300, 1100, 700)
 
 # Court coordinates
 court_coords = np.array(
@@ -34,7 +35,6 @@ while cap.isOpened():
     color = (0, 255, 0)  # Verde
     thickness = 2
     cv2.polylines(frame, [court_coords], isClosed=True, color=color, thickness=thickness)
-
     # Display the frame with the rectangle
     cv2.imshow("Video with Rectangle", frame)
     time.sleep(1)
