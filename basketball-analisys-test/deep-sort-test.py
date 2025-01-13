@@ -3,6 +3,7 @@ from deep_sort_realtime.deepsort_tracker import DeepSort
 import cv2
 import time
 from utils import PROJECT_DIR
+from utils_images.functions_util import get_rectangule_coords
 
 # Configuración
 model_path = f'{PROJECT_DIR}/datasets/input-test/best.pt'
@@ -13,7 +14,7 @@ video_path = f'{PROJECT_DIR}/datasets/input-test/partido-mas-telde-san-isidro.mp
 # https://medium.com/@gayathri.s.de/object-detection-and-tracking-with-yolov8-and-deepsort-5d5981752151
 
 objects_names = ['Ball', 'Hoop', 'Period', 'Player', 'Ref', 'Shot Clock', 'Team Name', 'Team Points', 'Time Remaining']
-nivel_confianza = 0.5
+nivel_confianza = 0.6
 
 # Cargar el modelo y DeepSORT
 model = YOLO(model_path)
@@ -45,6 +46,7 @@ def get_objects(boxes, nivel_confianza, objects_names, class_name):
 
         if confidences[i] > nivel_confianza:
             if object_name == class_name:
+                print(box_update)
                 detections.append((box_update, confidences[i], object_name))
     return detections
 
