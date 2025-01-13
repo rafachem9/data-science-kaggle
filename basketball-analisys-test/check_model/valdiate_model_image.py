@@ -2,7 +2,10 @@ from ultralytics import YOLO
 from utils import PROJECT_DIR_FIX
 
 # Cargar el modelo entrenado
-model = YOLO(f'{PROJECT_DIR_FIX}/runs/detect/train9/weights/best.pt')
+
+model_path = f'{PROJECT_DIR_FIX}/datasets/input-test/best.pt'
+
+model = YOLO(model_path)
 
 nivel_confianza = 0.5
 

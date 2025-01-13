@@ -2,6 +2,7 @@ from ultralytics import YOLO
 import cv2
 from utils import PROJECT_DIR_FIX
 
+
 # Tamaño de entrada del modelo (debe coincidir con el tamaño de imagen con el que entrenaste el modelo)
 input_size = 640  # Asumiendo que usaste 640x640 durante el entrenamiento
 
