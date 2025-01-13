@@ -8,7 +8,7 @@ from utils import PROJECT_DIR
 
 # Configuración
 model_path = f'{PROJECT_DIR}/datasets/input-test/best.pt'
-video_path = f'{PROJECT_DIR}/datasets/input-test/partido-mas-telde-san-isidro.mp4'
+# video_path = f'{PROJECT_DIR}/datasets/input-test/partido-mas-telde-san-isidro.mp4'
 video_path = f'{PROJECT_DIR}/datasets/input-test/grancanariavslanzarote.mp4'
 
 # https://www.kaggle.com/code/nityampareek/using-deepsort-object-tracker-with-yolov5
@@ -55,7 +55,8 @@ while cap.isOpened():
         box_update = [x1, y1, int(w), int(h)]
         object_name = objects_names[int(class_ids[i])]
 
-        detections.append((box_update, confidences[i], object_name))
+        if confidences[i] > nivel_confianza:
+            detections.append((box_update, confidences[i], object_name))
     img = results[0].plot()
 
     cv2.imshow('detect', img)
@@ -68,7 +69,6 @@ while cap.isOpened():
         if not track.is_confirmed():
             continue
         bbox = track.to_ltrb()
-        print(track)
         track_id = track.track_id
         class_id = 'player'
         cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 255, 0), 2)
