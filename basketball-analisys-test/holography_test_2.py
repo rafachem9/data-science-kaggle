@@ -10,6 +10,7 @@ import numpy as np
 model_path = f'{PROJECT_DIR}/datasets/input-test/best.pt'
 video_path = f'{PROJECT_DIR}/datasets/input-test/partido-mas-telde-san-isidro.mp4'
 # video_path = f'{PROJECT_DIR}/datasets/input-test/grancanariavslanzarote.mp4'
+diagram_image_path = f'{PROJECT_DIR}/datasets/input-test/basket_court.png'
 
 # https://www.kaggle.com/code/nityampareek/using-deepsort-object-tracker-with-yolov5
 # https://medium.com/@gayathri.s.de/object-detection-and-tracking-with-yolov8-and-deepsort-5d5981752151
@@ -24,9 +25,8 @@ court_coords = np.array(
      [1100, 450],  # Esquina superior derecha
      [100, 480]],  # Esquina superior izquierda
     np.int32)
-# Path to the diagram image
-diagram_image_path = f'{PROJECT_DIR}/datasets/input-test/basket_court.png'
-diagram_image = cv2.imread(diagram_image_path)
+diagram_points = np.array([[22, 22], [642, 22], [642, 388], [22, 388]])
+homography_matrix, status = cv2.findHomography(court_coords, diagram_points)
 
 # Cargar el modelo y DeepSORT
 model = YOLO(model_path)
@@ -45,13 +45,6 @@ def get_objects(boxes, nivel_confianza, objects_names, class_name):
 
         x1 = int(x_center - w / 2)
         y1 = int(y_center - h / 2)
-        x2 = int(x_center + w / 2)
-        y2 = int(y_center + h / 2)
-
-        # Check if the box is inside the frame
-        # cv2.rectangle(frame, (x1, y1, int(w), int(h)), (0, 0, 255), 2)
-        # cv2.putText(frame, f'ID: {i}', (int(box[0]), int(box[1]) - 10),
-        #             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
         box_update = [x1, y1, int(w), int(h)]
         object_name = objects_names[int(class_ids[i])]
@@ -63,15 +56,32 @@ def get_objects(boxes, nivel_confianza, objects_names, class_name):
     return detections
 
 
-def plot_result(frame, tracks, class_name, color):
+def plot_result(frame, tracks, class_name, class_color, schema_image=None, homography_matrix=None):
     for track in tracks:
         if not track.is_confirmed():
             continue
         bbox = track.to_ltrb()
         track_id = track.track_id
-        cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
+
+        cv2.rectangle(frame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), class_color, 2)
         cv2.putText(frame, f'{class_name}: {track_id}', (int(bbox[0]), int(bbox[1]) - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, class_color, 2)
+
+        if schema_image is not None:
+            # Coordenadas del centro del rectángulo
+            x_center = int((bbox[0] + bbox[2]) / 2)
+            y_center = int((bbox[1] + bbox[3]) / 2)
+
+            # Add the center point to the diagram
+            center_point = np.array([[[x_center, y_center]]], dtype=np.float32)
+            transformed_center = cv2.perspectiveTransform(center_point, homography_matrix)
+            transformed_center = transformed_center[0][0]
+            transformed_center = tuple(map(int, transformed_center))
+
+            cv2.circle(schema_image, transformed_center, 5, class_color, -1)
+            cv2.putText(schema_image, f'{class_name}: {track_id}',
+                        (int(transformed_center[0] - 25), int(transformed_center[1]) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, class_color, 2)
     return frame
 
 
@@ -80,6 +90,9 @@ while cap.isOpened():
     start = time.perf_counter()
     if not ret:
         break
+
+    # Path to the diagram image
+    diagram_image = cv2.imread(diagram_image_path)
 
     # Draw the Court location
     color = (0, 255, 0)  # Verde
@@ -103,21 +116,33 @@ while cap.isOpened():
 
     # Follow the players
     tracks_player = deepsort.update_tracks(detections_player, frame=frame)
-    frame = plot_result(frame, tracks_player, 'Player', color=(52, 161, 235))
+    frame = plot_result(frame, tracks_player, 'Player',
+                        class_color=(255, 0, 0),
+                        schema_image=diagram_image,
+                        homography_matrix=homography_matrix
+                        )
 
     # Follow the referee
     tracks_referee = deepsort_ref.update_tracks(detections_referee, frame=frame)
-    frame = plot_result(frame, tracks_referee, 'Ref', color=(128, 128, 128))
+    frame = plot_result(frame, tracks_referee, 'Ref',
+                        class_color=(128, 128, 128),
+                        schema_image=diagram_image,
+                        homography_matrix=homography_matrix)
 
     # Follow the ball
     tracks_ball = deepsort_ball.update_tracks(detections_ball, frame=frame)
-    frame = plot_result(frame, tracks_ball, 'Ball', color=(0, 255, 0))
+    frame = plot_result(frame, tracks_ball, 'Ball',
+                        class_color=(0, 255, 0),
+                        schema_image=diagram_image,
+                        homography_matrix=homography_matrix)
 
     # Mostrar FPS
     end = time.perf_counter()
     fps = 1 / (end - start)
     cv2.putText(frame, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
     cv2.imshow('Tracking', frame)
+
+    cv2.imshow("Diagrama", diagram_image)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

@@ -10,7 +10,7 @@ diagram_image_path = f'{PROJECT_DIR}/datasets/input-test/basket_court.png'
 diagram_image = cv2.imread(diagram_image_path)
 print("Diagram image shape:", diagram_image.shape)
 
-height, width, _ = image.shape
+height, width, _ = diagram_image.shape
 
 # Abrir la imagen del video (o imagen de prueba)
 video_path = f'{PROJECT_DIR}/datasets/input-test/holograpic_test.png'
@@ -58,8 +58,14 @@ print("Transformed center:", transformed_center)
 # Convertir las coordenadas transformadas a enteros
 transformed_center = tuple(map(int, transformed_center))
 
+print('Transformed center:', transformed_center)
+cv2.circle(diagram_image, [50, 50], 5, color, -1)
+
 # Dibujar el punto transformado en el diagrama
 cv2.circle(diagram_image, transformed_center, 5, (0, 0, 255), -1)
+cv2.circle(diagram_image, transformed_center, 5, (0, 0, 255), -1)
+
+cv2.rectangle(diagram_image, (22,22), (642, 388), (0, 255, 0), 2)
 
 # Puntos del rectángulo (marcar la posición del jugador)
 x2, y2 = x1 + w, y1 + h
