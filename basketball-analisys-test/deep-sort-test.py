@@ -70,7 +70,7 @@ while cap.isOpened():
         coords = [x1, y1, int(x2 - x1), int(y2 - y1)]
         print(coords)
         print(boxes_list[row])
-        detections.append((coords, confidences_list[row], class_ids_list[row]))
+        detections.append((boxes_list[row], confidences_list[row], class_ids_list[row]))
 
     img = results[0].plot()
 
@@ -85,6 +85,8 @@ while cap.isOpened():
         ltrb = track.to_ltrb()
 
         bbox = ltrb
+        print(bbox[0], bbox[1], bbox[2], bbox[3])
+
         cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), (0, 0, 255), 2)
         cv2.putText(img, "ID: " + str(track_id), (int(bbox[0]), int(bbox[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX, 1.5,
                     (0, 255, 0), 2)
