@@ -1,16 +1,23 @@
+import os
 from ultralytics import YOLO
-from utils import PROJECT_DIR_FIX
+from utils import INPUT_TEST_DIR, MODEL_DIR
 
-# Cargar el modelo entrenado
+MODEL_NAME = 'best.pt'
+VIDEO_NAME = 'image-test-1.png'
+MODEL_TRAIN_DIR = 'train16'
 
-model_path = f'{PROJECT_DIR_FIX}/datasets/input-test/best.pt'
+# Configurations
+CONFIDENCE_LEVEL = 0.6
 
-model = YOLO(model_path)
+# Paths
+MODEL_PATH = os.path.join(MODEL_DIR, MODEL_TRAIN_DIR, 'weights', MODEL_NAME)
+IMAGE_PATH = os.path.join(INPUT_TEST_DIR, VIDEO_NAME)
 
-nivel_confianza = 0.5
+# Cargar el modelo entrenadoq
+model = YOLO(MODEL_PATH)
 
 # Hacer inferencia en una imagen
-results = model(f'{PROJECT_DIR_FIX}/datasets/input-test/image-test-1.png',
+results = model(IMAGE_PATH,
                 save=True,
                 imgsz=640,
-                conf=nivel_confianza)
+                conf=CONFIDENCE_LEVEL)

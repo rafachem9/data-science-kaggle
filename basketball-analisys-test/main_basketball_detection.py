@@ -1,22 +1,28 @@
+import os
 import cv2
 import time
 import numpy as np
 from ultralytics import YOLO
 from deep_sort_realtime.deepsort_tracker import DeepSort
-from utils import PROJECT_DIR
+from utils import INPUT_TEST_DIR, MODEL_DIR
 
-# Paths
-MODEL_PATH = f'{PROJECT_DIR}/datasets/input-test/best.pt'
-VIDEO_PATH = f'{PROJECT_DIR}/datasets/input-test/partido-mas-telde-san-isidro.mp4'
-DIAGRAM_IMAGE_PATH = f'{PROJECT_DIR}/datasets/input-test/basket_court.png'
+MODEL_NAME = 'best.pt'
+VIDEO_NAME = 'partido-mas-telde-san-isidro.mp4'
+DIAGRAM_IMAGE_NAME = 'basket_court.png'
+MODEL_TRAIN_DIR = 'train16'
 
 # Configurations
 OBJECT_NAMES = ['Ball', 'Hoop', 'Period', 'Player', 'Ref', 'Shot Clock', 'Team Name', 'Team Points', 'Time Remaining']
 CONFIDENCE_LEVEL = 0.6
 
+# Paths
+MODEL_PATH = os.path.join(MODEL_DIR, MODEL_TRAIN_DIR, 'weights', MODEL_NAME)
+VIDEO_PATH = os.path.join(INPUT_TEST_DIR, VIDEO_NAME)
+DIAGRAM_IMAGE_PATH = os.path.join(INPUT_TEST_DIR, DIAGRAM_IMAGE_NAME)
+
 # Court coordinates for homography
 COURT_COORDS = np.array(
-    [[-100, 700], [1500, 650], [1100, 450], [100, 480]], np.int32
+    [[-100, 750], [1500, 650], [1100, 450], [100, 480]], np.int32
 )
 DIAGRAM_POINTS = np.array([[22, 22], [642, 22], [642, 388], [22, 388]])
 MATRIX_TRANSFORMATION, _ = cv2.findHomography(COURT_COORDS, DIAGRAM_POINTS)
@@ -60,7 +66,9 @@ def plot_tracks(image, tracks, class_name, color, diagram=None, homography_matri
         if diagram is not None and homography_matrix is not None:
             # Compute the center of the bounding box
             center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
-            center_point = np.array([[[center_x, center_y]]], dtype=np.float32)
+            cv2.circle(image, (center_x, y2), 5, color, -1)
+
+            center_point = np.array([[[center_x, y2]]], dtype=np.float32)
 
             # Transform the center point using the homography matrix
             transformed_center = cv2.perspectiveTransform(center_point, homography_matrix)[0][0]

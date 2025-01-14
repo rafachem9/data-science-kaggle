@@ -1,16 +1,25 @@
-from ultralytics import YOLO
+import os
 import cv2
-from utils import PROJECT_DIR_FIX
+from ultralytics import YOLO
+from utils import INPUT_TEST_DIR, MODEL_DIR
 
+MODEL_NAME = 'best.pt'
+VIDEO_NAME = 'partido-mas-telde-san-isidro.mp4'
+DIAGRAM_IMAGE_NAME = 'basket_court.png'
+MODEL_TRAIN_DIR = 'train16'
 
-# Tamaño de entrada del modelo (debe coincidir con el tamaño de imagen con el que entrenaste el modelo)
-input_size = 640  # Asumiendo que usaste 640x640 durante el entrenamiento
+# Configurations
+CONFIDENCE_LEVEL = 0.6
+
+# Paths
+MODEL_PATH = os.path.join(MODEL_DIR, MODEL_TRAIN_DIR, 'weights', MODEL_NAME)
+VIDEO_PATH = os.path.join(INPUT_TEST_DIR, VIDEO_NAME)
 
 # Cargar el modelo entrenado
-model = YOLO(f'{PROJECT_DIR_FIX}/runs/detect/train9/weights/best.pt')
+model = YOLO(MODEL_PATH)
 
 # Leer un video
-cap = cv2.VideoCapture(f'{PROJECT_DIR_FIX}/datasets/input-test/partido-mas-telde-san-isidro.mp4')  # Cambia '0' para usar una webcam
+cap = cv2.VideoCapture(VIDEO_PATH)  # Cambia '0' para usar una webcam
 
 
 while cap.isOpened():
@@ -18,11 +27,8 @@ while cap.isOpened():
     if not ret:
         break
 
-    # Redimensionar el frame al tamaño de entrada del modelo
-    frame_resized = cv2.resize(frame, (input_size, input_size))
-
     # Realizar inferencia en cada cuadro
-    results = model.predict(frame_resized, conf=0.4)
+    results = model.predict(frame, conf=CONFIDENCE_LEVEL)
 
     # Dibujar las detecciones en el cuadro
     annotated_frame = results[0].plot()
