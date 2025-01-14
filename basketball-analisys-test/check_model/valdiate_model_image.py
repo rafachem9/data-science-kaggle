@@ -3,7 +3,7 @@ from ultralytics import YOLO
 from utils import INPUT_TEST_DIR, MODEL_DIR
 
 MODEL_NAME = 'best.pt'
-VIDEO_NAME = 'image-test-1.png'
+VIDEO_NAME = 'nba_test_image.jpg'
 MODEL_TRAIN_DIR = 'train16'
 
 # Configurations
